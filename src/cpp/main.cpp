@@ -74,6 +74,5 @@ int main(int argc, char** argv)
 
     program_file.close();
 
-
     return 0;
 }

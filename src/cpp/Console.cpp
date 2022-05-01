@@ -22,11 +22,16 @@ TuringConsole::TuringConsole(std::ifstream& _code_file)
     height = console_info.dwSize.Y;
     dbg_println("Console Width:  " << width);
     dbg_println("Console Height: " << height);
+#else
+    initscr();
+    cbreak();
+    noecho();
+
+    width = COLS;
+    height = LINES;
+#endif
 
     tape_display_width = width - 10;
-#else
-    // TODO: 
-#endif
 
     // setting up the Turing Tape
     // margin: 0 1 0 1
@@ -60,13 +65,12 @@ void TuringConsole::set_color(color col)
 
 void TuringConsole::set_tape_cursor(unsigned short position, const std::string& tape)
 {
-    // TODO: Reset color for current position
-    set_position({ short(tape_display_start.X + turing_position), tape_display_start.Y });
+    set_position({ tape_display_start.X + turing_position, tape_display_start.Y });
     set_color(color::reset);
     std::cout << tape[turing_position];
 
     // Highlight new position
-    set_position({ short(tape_display_start.X + position), tape_display_start.Y });
+    set_position({ tape_display_start.X + position, tape_display_start.Y });
     set_color(color::cyan_bg);
     std::cout << tape[position];
     set_color(color::reset);
@@ -76,7 +80,11 @@ void TuringConsole::set_tape_cursor(unsigned short position, const std::string& 
 
 void TuringConsole::set_position(coord pos)
 {
+#if WIN32
     SetConsoleCursorPosition(handle, pos);
+#else
+    move(pos.X, pos.Y);
+#endif
 }
 
 void TuringConsole::set_current_code_line(unsigned short line, std::ifstream& file)
@@ -92,8 +100,6 @@ void TuringConsole::set_current_code_line(unsigned short line, std::ifstream& fi
     // Completed highlighting the line
     bool colored = false;
 
-    // TODO: reset color of current_code_line 
-
     if (file.is_open())
     {
         // Stop when both tasks (resetting current_line and highlighting target line) are complete
@@ -107,7 +113,7 @@ void TuringConsole::set_current_code_line(unsigned short line, std::ifstream& fi
             // Reset color of current_line
             if (line_count == current_code_line)
             {
-                set_position({ 0, short(line_count + 5) });
+                set_position({ 0, line_count + 5u });
                 set_color(color::reset);
                 std::cout << s;
 
@@ -118,7 +124,7 @@ void TuringConsole::set_current_code_line(unsigned short line, std::ifstream& fi
             // Set color of target line
             if (line_count == line)
             {
-                set_position({ 0, short(line_count + 5) });
+                set_position({ 0, line_count + 5u });
                 set_color(color::green_bg);
                 std::cout << s;
                 set_color(color::reset);
@@ -143,7 +149,7 @@ void TuringConsole::set_current_code_line(unsigned short line, std::ifstream& fi
 
 void TuringConsole::write_at(char symbol, unsigned short tape_position)
 {
-    set_position({ short(tape_display_start.X + tape_position), tape_display_start.Y });
+    set_position({ tape_display_start.X + tape_position, tape_display_start.Y });
 
     if (turing_position == tape_position)
         set_color(color::cyan_bg);
@@ -171,7 +177,11 @@ void TuringConsole::draw_tape_scrollers(bool arrow1_disabled, bool arrow2_disabl
         set_color(color::light_black_bg);
     else
         set_color(color::white_bg);
+#if WIN32
     auto arrow_right_x = short(width - 1 - 3);
+#else
+    unsigned int arrow_right_x = width - 1 - 3;
+#endif
     set_position({ arrow_right_x, 1 });
     std::cout << "   ";
     set_position({ arrow_right_x, 2 });

@@ -7,6 +7,8 @@
 #include <fstream>
 #ifdef WIN32
 #include <Windows.h>
+#else
+#include <curses.h>
 #endif
 
 #ifdef _DEBUG
@@ -34,7 +36,14 @@
 #define CYAN    6
 #define WHITE   7
 
+#ifdef WIN32
 typedef COORD coord;
+#else
+struct coord
+{
+    unsigned int X, Y;
+};
+#endif
 
 enum class color {
     // e.g.: foreground + red, background + green + brighter. Must not use a color alone
@@ -86,6 +95,9 @@ class TuringConsole
 {
 public:
     explicit TuringConsole(std::ifstream& _code_file);
+#ifndef WIN32
+    ~TuringConsole() { endwin(); }
+#endif // Linux
 
     short get_width()  const { return this->width;  }
     short get_height() const { return this->height; }
@@ -105,12 +117,16 @@ private:
     CONSOLE_SCREEN_BUFFER_INFO console_info;
 #endif
 
-    unsigned int turing_position;
+    unsigned short turing_position;
     // First line is line 1
     unsigned int current_code_line;
     std::ifstream& code_file;
 
+#ifdef WIN32
     short width, height;
+#else
+    int width, height;
+#endif
     coord tape_display_start;
     unsigned short tape_display_width;
 
@@ -118,7 +134,6 @@ private:
     inline void set_color(color col);
     inline void set_position(coord pos);
     void draw_tape_scrollers(bool arrow1_disabled = true, bool arrow2_disabled = true);
-
 };
 
 
