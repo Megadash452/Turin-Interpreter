@@ -1,0 +1,7 @@
+build-*
+out
+Debug
+Release
+x86
+x64
+.vs

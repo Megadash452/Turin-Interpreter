@@ -1,0 +1,28 @@
+; Program: given an even number of 1's (e.g. 1111), replace the first half with 0's
+
+; Seek (_ || X) to the Left
+0 1 1 l 0
+0 _ _ r 1
+0 X X r 1
+
+; Seek (_ || Y) to the Right
+2 1 1 r 2
+2 _ _ l 3
+2 Y Y l 3
+
+; Replace right with X
+1 1 X r 2
+1 Y Y l 4 ; finished replacing 1's with X's or Y's
+
+; Replace left with Y
+3 1 Y l 0
+
+; Go to start
+4 X X l 4
+4 Y Y l 4
+4 _ _ r 5
+
+; Replacement Process (x -> 0, Y -> 1)
+5 X 0 r 5
+5 Y 1 r 5
+5 _ _ * 6 ; halt

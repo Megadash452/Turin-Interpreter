@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeSharedSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug-win" ENABLED="true" GENERATION_DIR="build-debug-win" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Visual Studio" />
+      <configuration PROFILE_NAME="Debug-win-x64" ENABLED="true" GENERATION_DIR="build-debug-win-x64" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Visual Studio x64" />
+      <configuration PROFILE_NAME="Release-win" ENABLED="true" GENERATION_DIR="build-release-win" CONFIG_NAME="Release" TOOLCHAIN_NAME="Visual Studio" />
+      <configuration PROFILE_NAME="Release-win-x64" ENABLED="true" GENERATION_DIR="build-release-win-x64" CONFIG_NAME="Release" TOOLCHAIN_NAME="Visual Studio x64" />
+    </configurations>
+  </component>
+</project>
