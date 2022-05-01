@@ -36,14 +36,14 @@
 #define CYAN    6
 #define WHITE   7
 
-#ifdef WIN32
-typedef COORD coord;
-#else
 struct coord
 {
-    unsigned int X, Y;
-};
+#ifdef WIN32
+    unsigned short x, y;
+#else
+    unsigned int   x, y;
 #endif
+};
 
 enum class color {
     // e.g.: foreground + red, background + green + brighter. Must not use a color alone
