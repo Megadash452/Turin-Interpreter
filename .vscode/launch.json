@@ -8,7 +8,7 @@
             "name": "Linux g++ Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\build-linux-g++\\${workspaceFolderBasename}",
+            "program": "${workspaceFolder}/build-linux-g++/${workspaceFolderBasename}",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
