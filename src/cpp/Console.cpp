@@ -92,7 +92,7 @@ void TuringConsole::set_position(coord pos)
 #if WIN32
     SetConsoleCursorPosition(handle, COORD{ (short)pos.x, (short)pos.y });
 #else
-    move(pos.X, pos.Y);
+    move(pos.x, pos.y);
 #endif
 }
 
