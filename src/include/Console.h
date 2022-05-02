@@ -7,8 +7,6 @@
 #include <fstream>
 #ifdef WIN32
 #include <Windows.h>
-#else
-#include <curses.h>
 #endif
 
 #ifdef _DEBUG
@@ -20,6 +18,12 @@
 #   define dbg_println(x)
 #   define dbg_error(x)
 #endif
+
+// ncurses colors
+#define UNACTIVE_SCROLL  1
+#define ACTIVE_SCROLL    2
+#define ACTIVE_CODE_LINE 3
+#define TAPE_CURSOR      4
 
 
 struct coord
@@ -81,9 +85,9 @@ class TuringConsole
 {
 public:
     explicit TuringConsole(std::ifstream& _code_file);
-#ifndef WIN32
-    ~TuringConsole() { endwin(); }
-#endif // Linux
+#ifndef WIN32 // Linux
+    ~TuringConsole();
+#endif
 
     short get_width()  const { return this->width;  }
     short get_height() const { return this->height; }
@@ -117,8 +121,9 @@ private:
     unsigned short tape_display_width;
 
     // Set color for printing, such as text color and background color
-    inline void set_color(color col);
-    inline void set_position(coord pos);
+    inline static void set_color(color col);
+    inline static void set_position(coord pos);
+    inline static void print(std::string& str);
     void draw_tape_scrollers(bool arrow1_disabled = true, bool arrow2_disabled = true);
 };
 

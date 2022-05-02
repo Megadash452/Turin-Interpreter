@@ -1,5 +1,8 @@
 #include "Console.h"
 #include <sstream>
+#ifndef WIN32 // Linux
+#include <curses.h>
+#endif
 
 TuringConsole::TuringConsole(std::ifstream& _code_file)
     : tape_display_start({5, 2}), turing_position(0), current_code_line(0), code_file(_code_file)
@@ -27,6 +30,12 @@ TuringConsole::TuringConsole(std::ifstream& _code_file)
     initscr();
     cbreak();
     noecho();
+    start_color();
+
+    init_pair(UNACTIVE_SCROLL, );
+    init_pair(ACTIVE_SCROLL, );
+    init_pair(ACTIVE_CODE_LINE, );
+    init_pair(TAPE_CURSOR, );
 
     width = COLS;
     height = LINES;
@@ -44,9 +53,15 @@ TuringConsole::TuringConsole(std::ifstream& _code_file)
          &:disabled
            bg-col: light_black (100)
     */
+#ifdef WIN32
     clear();
+#endif
     draw_tape_scrollers();
 }
+
+#ifndef WIN32 // Linux
+    TuringConsole::~TuringConsole() { endwin(); }
+#endif
 
 void TuringConsole::clear()
 {
@@ -60,29 +75,35 @@ void TuringConsole::clear()
 
 void TuringConsole::set_color(color col)
 {
+#if WIN32
     // ANSI Colors
     std::cout << "\033[" << (unsigned int)col << "m";
+#else
+    // TODO: figure out a cross-compatible way 
+#endif
 }
 
 void TuringConsole::set_tape_cursor(unsigned short position, const std::string& tape)
 {
 #ifdef WIN32
     set_position({ (unsigned short)(tape_display_start.x + turing_position), tape_display_start.y });
-#else
-    set_position({ tape_display_start.x + turing_position, tape_display_start.y });
-#endif
     set_color(color::reset);
     std::cout << tape[turing_position];
+#else
+    mvaddstr(tape_display_start.y, tape_display_start.x + turing_position, tape[turing_position].c_str());
+#endif
 
     // Highlight new position
 #ifdef WIN32
     set_position({ (unsigned short)(tape_display_start.x + position), tape_display_start.y });
-#else
-    set_position({ tape_display_start.x + position, tape_display_start.y });
-#endif
     set_color(color::cyan_bg);
     std::cout << tape[position];
     set_color(color::reset);
+#else
+    attron(COLOR_PAIR(TAPE_CURSOR));
+    mvaddstr(tape_display_start.y, tape_display_start.x + position, tape[position].c_str());
+    attroff(COLOR_PAIR(TAPE_CURSOR));
+#endif
 
     turing_position = position;
 }
@@ -92,7 +113,8 @@ void TuringConsole::set_position(coord pos)
 #if WIN32
     SetConsoleCursorPosition(handle, COORD{ (short)pos.x, (short)pos.y });
 #else
-    move(pos.x, pos.y);
+    // NOTE: for ncurses, the x and y are reversed (y comes first)
+    move(pos.y, pos.x);
 #endif
 }
 
