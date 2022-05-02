@@ -12,6 +12,7 @@ TuringConsole::TuringConsole(std::ifstream& _code_file)
     if (handle == INVALID_HANDLE_VALUE)
         dbg_error("Bad Handle Read. ErrorCode " << GetLastError());
 
+    // TODO: Get Console info does not work in Clion
     if (GetConsoleScreenBufferInfo(handle, &console_info) > 0)
         dbg_println("Successfully obtained OutputConsole console_info.");
     else
@@ -66,7 +67,7 @@ void TuringConsole::set_color(color col)
 void TuringConsole::set_tape_cursor(unsigned short position, const std::string& tape)
 {
 #ifdef WIN32
-    set_position({ unsigned short(tape_display_start.x + turing_position), tape_display_start.y });
+    set_position({ (unsigned short)(tape_display_start.x + turing_position), tape_display_start.y });
 #else
     set_position({ tape_display_start.x + turing_position, tape_display_start.y });
 #endif
@@ -75,7 +76,7 @@ void TuringConsole::set_tape_cursor(unsigned short position, const std::string& 
 
     // Highlight new position
 #ifdef WIN32
-    set_position({ unsigned short(tape_display_start.x + position), tape_display_start.y });
+    set_position({ (unsigned short)(tape_display_start.x + position), tape_display_start.y });
 #else
     set_position({ tape_display_start.x + position, tape_display_start.y });
 #endif
@@ -122,7 +123,7 @@ void TuringConsole::set_current_code_line(unsigned short line, std::ifstream& fi
             if (line_count == current_code_line)
             {
 #ifdef WIN32
-                set_position({ 0, unsigned short(line_count + 5u) });
+                set_position({ 0, (unsigned short)(line_count + 5u) });
 #else
                 set_position({ 0, line_count + 5u });
 #endif
@@ -137,7 +138,7 @@ void TuringConsole::set_current_code_line(unsigned short line, std::ifstream& fi
             if (line_count == line)
             {
 #ifdef WIN32
-                set_position({ 0, unsigned short(line_count + 5u) });
+                set_position({ 0, (unsigned short)(line_count + 5u) });
 #else
                 set_position({ 0, line_count + 5u });
 #endif
@@ -166,7 +167,7 @@ void TuringConsole::set_current_code_line(unsigned short line, std::ifstream& fi
 void TuringConsole::write_at(char symbol, unsigned short tape_position)
 {
 #ifdef WIN32
-    set_position({ unsigned short(tape_display_start.x + tape_position), tape_display_start.y });
+    set_position({ (unsigned short)(tape_display_start.x + tape_position), tape_display_start.y });
 #else
     set_position({ tape_display_start.x + tape_position, tape_display_start.y });
 #endif
@@ -198,7 +199,7 @@ void TuringConsole::draw_tape_scrollers(bool arrow1_disabled, bool arrow2_disabl
     else
         set_color(color::white_bg);
 #if WIN32
-    auto arrow_right_x = unsigned short(width - 1 - 3);
+    auto arrow_right_x = (unsigned short)(width - 1 - 3);
 #else
     unsigned int arrow_right_x = width - 1 - 3;
 #endif
