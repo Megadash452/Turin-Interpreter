@@ -89,7 +89,7 @@ void TuringConsole::set_tape_cursor(unsigned short position, const std::string& 
 void TuringConsole::set_position(coord pos)
 {
 #if WIN32
-    SetConsoleCursorPosition(handle, COORD{ (short)pos.x, (short)pos.x });
+    SetConsoleCursorPosition(handle, COORD{ (short)pos.x, (short)pos.y });
 #else
     move(pos.X, pos.Y);
 #endif
