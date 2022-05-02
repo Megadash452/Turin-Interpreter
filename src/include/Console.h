@@ -92,7 +92,7 @@ public:
     short get_width()  const { return this->width;  }
     short get_height() const { return this->height; }
 
-    void clear();
+    void static clear();
     void set_tape_cursor(unsigned short position, const std::string& tape);
     // Highlights the current line in the code section. First line has value 0
     void set_current_code_line(unsigned short line, std::ifstream& file);
@@ -122,7 +122,7 @@ private:
 
     // Set color for printing, such as text color and background color
     inline static void set_color(color col);
-    inline static void set_position(coord pos);
+    inline void set_position(coord pos);
     inline static void print(std::string& str);
     void draw_tape_scrollers(bool arrow1_disabled = true, bool arrow2_disabled = true);
 };

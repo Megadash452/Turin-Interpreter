@@ -75,6 +75,8 @@ void TuringConsole::clear()
 
 void TuringConsole::set_color(color col)
 {
+    // ANSI Colors
+    std::cout << "\033[" << (unsigned int)col << "m";
 #if WIN32
     // ANSI Colors
     std::cout << "\033[" << (unsigned int)col << "m";
@@ -90,7 +92,7 @@ void TuringConsole::set_tape_cursor(unsigned short position, const std::string& 
     set_color(color::reset);
     std::cout << tape[turing_position];
 #else
-    mvaddstr(tape_display_start.y, tape_display_start.x + turing_position, tape[turing_position].c_str());
+    mvaddch(tape_display_start.y, tape_display_start.x + turing_position, tape[turing_position]);
 #endif
 
     // Highlight new position
@@ -101,20 +103,20 @@ void TuringConsole::set_tape_cursor(unsigned short position, const std::string& 
     set_color(color::reset);
 #else
     attron(COLOR_PAIR(TAPE_CURSOR));
-    mvaddstr(tape_display_start.y, tape_display_start.x + position, tape[position].c_str());
+    mvaddch(tape_display_start.y, tape_display_start.x + position, tape[position]);
     attroff(COLOR_PAIR(TAPE_CURSOR));
 #endif
 
     turing_position = position;
 }
 
-void TuringConsole::set_position(coord pos)
+void TuringConsole::set_position(coord pos) // NOLINT(readability-convert-member-functions-to-static)
 {
 #if WIN32
     SetConsoleCursorPosition(handle, COORD{ (short)pos.x, (short)pos.y });
 #else
     // NOTE: for ncurses, the x and y are reversed (y comes first)
-    move(pos.y, pos.x);
+    move(static_cast<int>(pos.y), static_cast<int>(pos.x));
 #endif
 }
 
@@ -146,12 +148,11 @@ void TuringConsole::set_current_code_line(unsigned short line, std::ifstream& fi
             {
 #ifdef WIN32
                 set_position({ 0, (unsigned short)(line_count + 5u) });
-#else
-                set_position({ 0, line_count + 5u });
-#endif
                 set_color(color::reset);
                 std::cout << s;
-
+#else
+                mvaddstr(line_count + 5u, 0, s.c_str());
+#endif
                 resetted = true;
             }
             // line and current_code_line could be the same, so no elseif
@@ -161,13 +162,14 @@ void TuringConsole::set_current_code_line(unsigned short line, std::ifstream& fi
             {
 #ifdef WIN32
                 set_position({ 0, (unsigned short)(line_count + 5u) });
-#else
-                set_position({ 0, line_count + 5u });
-#endif
                 set_color(color::green_bg);
                 std::cout << s;
                 set_color(color::reset);
-
+#else
+                attron(COLOR_PAIR(ACTIVE_CODE_LINE));
+                mvaddstr(line_count + 5u, 0, s.c_str());
+                attroff(COLOR_PAIR(ACTIVE_CODE_LINE));
+#endif
                 colored = true;
             }
         }
@@ -190,18 +192,22 @@ void TuringConsole::write_at(char symbol, unsigned short tape_position)
 {
 #ifdef WIN32
     set_position({ (unsigned short)(tape_display_start.x + tape_position), tape_display_start.y });
-#else
-    set_position({ tape_display_start.x + tape_position, tape_display_start.y });
-#endif
-
     if (turing_position == tape_position)
         set_color(color::cyan_bg);
     std::cout << symbol;
     set_color(color::reset);
+#else
+    if (turing_position == tape_position)
+        attron(COLOR_PAIR(TAPE_CURSOR));
+    mvaddch(tape_display_start.y, tape_display_start.x + tape_position, symbol);
+    attroff(COLOR_PAIR(TAPE_CURSOR));
+#endif
+
 }
 
-void TuringConsole::draw_tape_scrollers(bool arrow1_disabled, bool arrow2_disabled)
+void TuringConsole::draw_tape_scrollers(bool arrow1_disabled, bool arrow2_disabled) // NOLINT(readability-make-member-function-const)
 {
+    // TODO: NCURSES
     // Left Scroller Arrow
     set_color(color::black_fg);
     if (arrow1_disabled)
@@ -238,6 +244,7 @@ void TuringConsole::draw_tape_scrollers(bool arrow1_disabled, bool arrow2_disabl
 
 void TuringConsole::set_tape_value(const std::string& tape)
 {
+    // TODO: NCURSES
     set_position(tape_display_start);
 
     if (tape.size() > tape_display_width)
@@ -259,6 +266,7 @@ void TuringConsole::set_tape_value(const std::string& tape)
 // Tries to print out Turing instructions. returns false if fails
 bool TuringConsole::print_turing_code(std::ifstream& file)
 {
+    // TODO: NCURSES
     char c;
 
     set_position({ 0, 5 });
