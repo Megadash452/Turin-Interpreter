@@ -22,20 +22,6 @@
 #endif
 
 
-// Colors as macros
-#define RESET       0
-#define FOREGROUND 30
-#define BACKGROUND 40
-#define BRIGHTER   60 // Non-standard
-#define BLACK   0
-#define RED     1
-#define GREEN   2
-#define YELLOW  3
-#define BLUE    4
-#define PURPLE  5
-#define CYAN    6
-#define WHITE   7
-
 struct coord
 {
 #ifdef WIN32
