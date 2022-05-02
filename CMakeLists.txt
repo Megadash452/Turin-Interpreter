@@ -9,3 +9,4 @@ endif()
 
 include_directories(src/include)
 add_executable(Turing_Interpreter src/cpp/main.cpp src/cpp/Console.cpp src/cpp/TuringMachine.cpp)
+target_link_libraries(Turing_Interpreter ncurses)
