@@ -5,7 +5,7 @@
 #endif
 
 TuringConsole::TuringConsole(std::ifstream& _code_file)
-    : tape_display_start({5, 2}), turing_position(0), current_code_line(0), code_file(_code_file)
+    : turing_position(0), current_code_line(0), code_file(_code_file)
 #ifdef WIN32
     , console_info({})
 #endif
@@ -76,17 +76,13 @@ void TuringConsole::clear()
 }
 
 
+#if WIN32
 void TuringConsole::set_color(color col)
 {
     // ANSI Colors
     std::cout << "\033[" << (unsigned int)col << "m";
-#if WIN32
-    // ANSI Colors
-    std::cout << "\033[" << (unsigned int)col << "m";
-#else
-    // TODO: figure out a cross-compatible way 
-#endif
 }
+#endif
 
 void TuringConsole::set_tape_cursor(unsigned short position, const std::string& tape)
 {
@@ -210,7 +206,6 @@ void TuringConsole::write_at(char symbol, unsigned short tape_position)
     attroff(COLOR_PAIR(TAPE_CURSOR));
     refresh();
 #endif
-
 }
 
 void TuringConsole::draw_tape_scrollers(bool arrow1_disabled, bool arrow2_disabled) // NOLINT(readability-make-member-function-const)
@@ -309,7 +304,6 @@ void TuringConsole::set_tape_value(const std::string& tape)
 #ifndef WIN32 // Linux
     refresh();
 #endif
-    set_position({ 1, 5 });
 }
 
 // Tries to print out Turing instructions. returns false if fails
@@ -318,7 +312,7 @@ bool TuringConsole::print_turing_code(std::ifstream& file)
     char c;
     // TODO: cannot print past last line in ncurses/linux
 
-    set_position({ 0, 5 });
+    set_position(code_start);
     if (file.is_open())
         while (file.good())
         {

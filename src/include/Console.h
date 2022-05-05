@@ -46,6 +46,7 @@ struct coord
 #endif
 };
 
+#ifdef WIN32
 enum class color {
     // e.g.: foreground + red, background + green + brighter. Must not use a color alone
     /*black = 0, red, green, yellow, blue, purple, cyan, white,
@@ -89,6 +90,7 @@ enum class color {
     light_cyan_bg   ,
     light_white_bg  ,
 };
+#endif
 
 
 
@@ -128,11 +130,14 @@ private:
 #else
     int width, height;
 #endif
-    coord tape_display_start;
+    const coord tape_display_start = { 5, 2 };
+    const coord code_start         = { 0, 5 };
     unsigned short tape_display_width;
 
-    // Set color for printing, such as text color and background color
+#ifdef WIN32
+    // Set color for printing, such as text color and background color (Windows Only)
     inline static void set_color(color col);
+#endif
     inline void set_position(coord pos);
     inline static void print(std::string& str);
     void draw_tape_scrollers(bool arrow1_disabled = true, bool arrow2_disabled = true);
