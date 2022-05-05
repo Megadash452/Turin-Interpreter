@@ -26,6 +26,7 @@ TuringConsole::TuringConsole(std::ifstream& _code_file)
     height = console_info.dwSize.Y;
     dbg_println("Console Width:  " << width);
     dbg_println("Console Height: " << height);
+    system("cls");
 #else
     initscr();
     start_color();
@@ -56,9 +57,6 @@ TuringConsole::TuringConsole(std::ifstream& _code_file)
          &:disabled
            bg-col: light_black (100)
     */
-#ifdef WIN32
-    clear();
-#endif
     draw_tape_scrollers();
 }
 
@@ -138,8 +136,8 @@ void TuringConsole::set_current_code_line(unsigned short line, std::ifstream& fi
         // Stop when both tasks (resetting current_line and highlighting target line) are complete
         while (file.good() && !(resetted && colored))
         {
-            std::string s;
-            std::getline(file, s);
+            std::string s_line;
+            std::getline(file, s_line);
             // First line is line 1
             line_count++;
 
@@ -147,11 +145,11 @@ void TuringConsole::set_current_code_line(unsigned short line, std::ifstream& fi
             if (line_count == current_code_line)
             {
 #ifdef WIN32
-                set_position({ 0, (unsigned short)(line_count + 5u) });
+                set_position({ code_start.x, (unsigned short)(line_count + code_start.y) });
                 set_color(color::reset);
-                std::cout << s;
+                std::cout << s_line;
 #else
-                mvaddstr(line_count + 5u, 0, s.c_str());
+                mvaddstr(line_count + code_start.y, code_start.x, s_line.c_str());
 #endif
                 resetted = true;
             }
@@ -161,13 +159,13 @@ void TuringConsole::set_current_code_line(unsigned short line, std::ifstream& fi
             if (line_count == line)
             {
 #ifdef WIN32
-                set_position({ 0, (unsigned short)(line_count + 5u) });
+                set_position({ code_start.x, (unsigned short)(line_count + code_start.y) });
                 set_color(color::green_bg);
-                std::cout << s;
+                std::cout << s_line;
                 set_color(color::reset);
 #else
                 attron(COLOR_PAIR(ACTIVE_CODE_LINE));
-                mvaddstr(line_count + 5, 0, s.c_str());
+                mvaddstr(line_count + code_start.y, code_start.x, s_line.c_str());
                 attroff(COLOR_PAIR(ACTIVE_CODE_LINE));
 #endif
                 colored = true;
@@ -306,7 +304,6 @@ void TuringConsole::set_tape_value(const std::string& tape)
 #endif
 }
 
-// Tries to print out Turing instructions. returns false if fails
 bool TuringConsole::print_turing_code(std::ifstream& file)
 {
     char c;
