@@ -60,6 +60,7 @@ TuringConsole::TuringConsole(std::ifstream& _code_file)
            bg-col: light_black (100)
     */
     draw_tape_scrollers();
+    print_instructions();
 }
 
 #ifndef WIN32 // Linux

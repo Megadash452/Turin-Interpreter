@@ -59,7 +59,6 @@ int main(int argc, char** argv)
     TuringConsole console{ program_file };
     TuringMachine machine{ initial_input, initial_state, program_file, console };
 
-    console.print_instructions();
     if (!console.print_turing_code(program_file))
         return 0;
 
