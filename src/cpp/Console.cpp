@@ -40,6 +40,8 @@ TuringConsole::TuringConsole(std::ifstream& _code_file)
     init_pair(ACTIVE_CODE_LINE, COLOR_BLACK, COLOR_GREEN);
     init_pair(TAPE_CURSOR, COLOR_BLACK, COLOR_CYAN);
     init_pair(COMMENT_LINE, COLOR_LIGHT_BLACK, COLOR_BLACK);
+    init_pair(INSTRUCTION_KEY, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(INSTRUCTION_TXT, COLOR_GREEN, COLOR_BLACK);
 
     width = COLS;
     height = LINES;
@@ -63,15 +65,6 @@ TuringConsole::TuringConsole(std::ifstream& _code_file)
 #ifndef WIN32 // Linux
     TuringConsole::~TuringConsole() { endwin(); }
 #endif
-
-void TuringConsole::clear()
-{
-#ifdef WIN32
-    system("cls");
-#else
-    system("clear");
-#endif
-}
 
 
 #if WIN32
@@ -349,4 +342,58 @@ bool TuringConsole::print_turing_code(std::ifstream& file)
 #endif
 
     return true;
+}
+
+void TuringConsole::print_instructions()
+{
+    set_position({ 5, 5 });
+#ifdef WIN32
+    set_color(color::yellow_fg);
+    std::cout << "<-";
+    set_color(color::green_fg);
+    std::cout << " | ";
+    set_color(color::yellow_fg);
+    std::cout << "->";
+    set_color(color::green_fg);
+    std::cout << " : Scroll Tape   ";
+    set_color(color::yellow_fg);
+    std::cout << "v";
+    set_color(color::green_fg);
+    std::cout << " | ";
+    set_color(color::yellow_fg);
+    std::cout << "^";
+    set_color(color::green_fg);
+    std::cout << " : Scroll Code   ";
+    set_color(color::yellow_fg);
+    std::cout << "F10";
+    set_color(color::green_fg);
+    std::cout << " : Step";
+
+    set_color(color::reset);
+#else
+    attron(COLOR_PAIR(INSTRUCTION_KEY));
+    addstr("<-");
+    attron(COLOR_PAIR(INSTRUCTION_TXT));
+    addstr(" | ");
+    attron(COLOR_PAIR(INSTRUCTION_KEY));
+    addstr("->");
+    attron(COLOR_PAIR(INSTRUCTION_TXT));
+    addstr(" : Scroll Tape   ");
+    attron(COLOR_PAIR(INSTRUCTION_KEY));
+    addstr("v");
+    attron(COLOR_PAIR(INSTRUCTION_TXT));
+    addstr(" | ");
+    attron(COLOR_PAIR(INSTRUCTION_KEY));
+    addstr("^");
+    attron(COLOR_PAIR(INSTRUCTION_TXT));
+    addstr(" : Scroll Code   ");
+    attron(COLOR_PAIR(INSTRUCTION_KEY));
+    addstr("F10");
+    attron(COLOR_PAIR(INSTRUCTION_TXT));
+    addstr(" : Step");
+    
+    attroff(COLOR_PAIR(INSTRUCTION_KEY));
+    attroff(COLOR_PAIR(INSTRUCTION_TXT));
+    refresh();
+#endif
 }

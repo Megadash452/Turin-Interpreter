@@ -19,22 +19,26 @@
 #   define dbg_error(x)
 #endif
 
+#ifndef WIN32
 // ncurses brighter colors
-#define COLOR_LIGHT_BLACK  8
-#define COLOR_LIGHT_RED    9
-#define COLOR_LIGHT_GREEN  10
-#define COLOR_LIGHT_YELLOW 11
-#define COLOR_LIGHT_BLUE   12
-#define COLOR_LIGHT_PURPLE 13
-#define COLOR_LIGHT_CYAN   14
-#define COLOR_LIGHT_WHITE  15
+#   define COLOR_LIGHT_BLACK  8
+#   define COLOR_LIGHT_RED    9
+#   define COLOR_LIGHT_GREEN  10
+#   define COLOR_LIGHT_YELLOW 11
+#   define COLOR_LIGHT_BLUE   12
+#   define COLOR_LIGHT_PURPLE 13
+#   define COLOR_LIGHT_CYAN   14
+#   define COLOR_LIGHT_WHITE  15
 
 // Color pair names used
-#define UNACTIVE_SCROLL  1
-#define ACTIVE_SCROLL    2
-#define ACTIVE_CODE_LINE 3
-#define TAPE_CURSOR      4
-#define COMMENT_LINE     5
+#   define UNACTIVE_SCROLL  1
+#   define ACTIVE_SCROLL    2
+#   define ACTIVE_CODE_LINE 3
+#   define TAPE_CURSOR      4
+#   define COMMENT_LINE     5
+#   define INSTRUCTION_KEY  6
+#   define INSTRUCTION_TXT  7
+#endif
 
 
 struct coord
@@ -102,7 +106,6 @@ public:
     ~TuringConsole();
 #endif
 
-    void static clear();
     void set_tape_cursor(unsigned short position, const std::string& tape);
     // Highlights the current line in the code section. First line has value 0
     void set_current_code_line(unsigned short line, std::ifstream& file);
@@ -110,6 +113,8 @@ public:
 
     // Tries to print out Turing instructions. returns false if fails
     bool print_turing_code(std::ifstream& file);
+    // Displays user instructions for turing interpreter
+    void print_instructions();
     void set_tape_value(const std::string& tape);
 
 private:
@@ -129,7 +134,7 @@ private:
     int width, height;
 #endif
     const coord tape_display_start = { 5, 2 };
-    const coord code_start         = { 0, 5 };
+    const coord code_start         = { 0, 7 };
     unsigned short tape_display_width;
 
 #ifdef WIN32
