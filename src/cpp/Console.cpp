@@ -28,14 +28,17 @@ TuringConsole::TuringConsole(std::ifstream& _code_file)
     dbg_println("Console Height: " << height);
 #else
     initscr();
+    start_color();
     cbreak();
     noecho();
-    start_color();
 
-    init_pair(UNACTIVE_SCROLL, );
-    init_pair(ACTIVE_SCROLL, );
-    init_pair(ACTIVE_CODE_LINE, );
-    init_pair(TAPE_CURSOR, );
+    // TODO: init color pairs without setting both Foreground and Background at the same time
+    // TODO: no transparent color??
+    init_pair(UNACTIVE_SCROLL, COLOR_BLACK, COLOR_LIGHT_BLACK);
+    init_pair(ACTIVE_SCROLL, COLOR_BLACK, COLOR_WHITE);
+    init_pair(ACTIVE_CODE_LINE, COLOR_BLACK, COLOR_GREEN);
+    init_pair(TAPE_CURSOR, COLOR_BLACK, COLOR_CYAN);
+    init_pair(COMMENT_LINE, COLOR_LIGHT_BLACK, COLOR_BLACK);
 
     width = COLS;
     height = LINES;
@@ -105,6 +108,7 @@ void TuringConsole::set_tape_cursor(unsigned short position, const std::string& 
     attron(COLOR_PAIR(TAPE_CURSOR));
     mvaddch(tape_display_start.y, tape_display_start.x + position, tape[position]);
     attroff(COLOR_PAIR(TAPE_CURSOR));
+    refresh();
 #endif
 
     turing_position = position;
@@ -167,7 +171,7 @@ void TuringConsole::set_current_code_line(unsigned short line, std::ifstream& fi
                 set_color(color::reset);
 #else
                 attron(COLOR_PAIR(ACTIVE_CODE_LINE));
-                mvaddstr(line_count + 5u, 0, s.c_str());
+                mvaddstr(line_count + 5, 0, s.c_str());
                 attroff(COLOR_PAIR(ACTIVE_CODE_LINE));
 #endif
                 colored = true;
@@ -184,8 +188,11 @@ void TuringConsole::set_current_code_line(unsigned short line, std::ifstream& fi
     else
         std::cerr << "Error opening file containing Turing instructions" << std::endl;
 
+#ifndef WIN32 // Linux
+    refresh();
+#endif
     file.clear();
-    file.seekg(0);
+    file.seekg(0); 
 }
 
 void TuringConsole::write_at(char symbol, unsigned short tape_position)
@@ -201,14 +208,29 @@ void TuringConsole::write_at(char symbol, unsigned short tape_position)
         attron(COLOR_PAIR(TAPE_CURSOR));
     mvaddch(tape_display_start.y, tape_display_start.x + tape_position, symbol);
     attroff(COLOR_PAIR(TAPE_CURSOR));
+    refresh();
 #endif
 
 }
 
 void TuringConsole::draw_tape_scrollers(bool arrow1_disabled, bool arrow2_disabled) // NOLINT(readability-make-member-function-const)
 {
-    // TODO: NCURSES
+#ifndef WIN32 // Linux
+    short arrow1_attr, arrow2_attr;
+    int arrow_right_x = width - 1 - 3;
+
+    if (arrow1_disabled)
+        arrow1_attr = UNACTIVE_SCROLL;
+    else
+        arrow1_attr = ACTIVE_SCROLL;
+    if (arrow2_disabled)
+        arrow2_attr = UNACTIVE_SCROLL;
+    else
+        arrow2_attr = ACTIVE_SCROLL;
+#endif
+
     // Left Scroller Arrow
+#ifdef WIN32
     set_color(color::black_fg);
     if (arrow1_disabled)
         set_color(color::light_black_bg);
@@ -220,17 +242,23 @@ void TuringConsole::draw_tape_scrollers(bool arrow1_disabled, bool arrow2_disabl
     std::cout << " < ";
     set_position({ 1, 3 });
     std::cout << "   ";
+#else
+    attron(COLOR_PAIR(arrow1_attr));
+    mvaddstr(1, 1, "   ");
+    mvaddstr(2, 1, " < ");
+    mvaddstr(3, 1, "   ");
+    attroff(COLOR_PAIR(arrow1_attr));
+#endif
 
     // Right Scroller Arrow
+#ifdef WIN32
     if (arrow2_disabled)
         set_color(color::light_black_bg);
     else
         set_color(color::white_bg);
-#if WIN32
+
     auto arrow_right_x = (unsigned short)(width - 1 - 3);
-#else
-    unsigned int arrow_right_x = width - 1 - 3;
-#endif
+
     set_position({ arrow_right_x, 1 });
     std::cout << "   ";
     set_position({ arrow_right_x, 2 });
@@ -239,12 +267,18 @@ void TuringConsole::draw_tape_scrollers(bool arrow1_disabled, bool arrow2_disabl
     std::cout << "   ";
 
     set_color(color::reset);
-    set_position({ 1, 5 });
+#else
+    attron(COLOR_PAIR(arrow2_attr));
+    mvaddstr(1, arrow_right_x, "   ");
+    mvaddstr(2, arrow_right_x, " > ");
+    mvaddstr(3, arrow_right_x, "   ");
+    attroff(COLOR_PAIR(arrow2_attr));
+    refresh();
+#endif
 }
 
 void TuringConsole::set_tape_value(const std::string& tape)
 {
-    // TODO: NCURSES
     set_position(tape_display_start);
 
     if (tape.size() > tape_display_width)
@@ -253,21 +287,36 @@ void TuringConsole::set_tape_value(const std::string& tape)
         for (unsigned int i = 0; i < tape.size(); i++)
             if (i == turing_position)
             {
+#ifdef WIN32
                 set_color(color::cyan_bg);
                 std::cout << tape[i];
                 set_color(color::reset);
+#else
+                attron(COLOR_PAIR(TAPE_CURSOR));
+                addch(tape[i]);
+                attroff(COLOR_PAIR(TAPE_CURSOR));
+#endif
             }
             else
+            {
+#ifdef WIN32
                 std::cout << tape[i];
+#else
+                addch(tape[i]);
+#endif
+            }
 
+#ifndef WIN32 // Linux
+    refresh();
+#endif
     set_position({ 1, 5 });
 }
 
 // Tries to print out Turing instructions. returns false if fails
 bool TuringConsole::print_turing_code(std::ifstream& file)
 {
-    // TODO: NCURSES
     char c;
+    // TODO: cannot print past last line in ncurses/linux
 
     set_position({ 0, 5 });
     if (file.is_open())
@@ -275,6 +324,7 @@ bool TuringConsole::print_turing_code(std::ifstream& file)
         {
             c = file.get();
 
+#ifdef WIN32
             // Comment
             if (c == ';')
                 set_color(color::light_black_fg);
@@ -282,6 +332,15 @@ bool TuringConsole::print_turing_code(std::ifstream& file)
                 set_color(color::reset);
 
             std::cout << c;
+#else
+            // Comment
+            if (c == ';')
+                attron(COLOR_PAIR(COMMENT_LINE));
+            else if (c == '\n')
+                attroff(COLOR_PAIR(COMMENT_LINE));
+
+            addch(c);
+#endif
         }
     else
     {
@@ -291,7 +350,12 @@ bool TuringConsole::print_turing_code(std::ifstream& file)
 
     file.clear();
     file.seekg(0);
+#ifdef WIN32
     set_color(color::reset);
+#else
+    attroff(COLOR_PAIR(COMMENT_LINE));
+    refresh();
+#endif
 
     return true;
 }

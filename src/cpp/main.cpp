@@ -49,15 +49,11 @@ int main(int argc, char** argv)
 
 #ifdef _DEBUG
     // Debug confirmation
-    {
-        std::cout << "-i: " << initial_input << std::endl
-                  << "-s: " << initial_state << std::endl
-                  << "-f: " << program_file_path << std::endl;
-        system("pause");
-    }
+    std::cout << "-i: " << initial_input << std::endl
+              << "-s: " << initial_state << std::endl
+              << "-f: " << program_file_path << std::endl;
+    system("pause");
 #endif
-
-    // TODO: Open Turing-Program.txt, clear console, etc.
 
     std::ifstream program_file{ program_file_path };
     TuringConsole console{ program_file };

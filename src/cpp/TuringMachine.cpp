@@ -78,7 +78,7 @@ bool TuringMachine::step()
                     std::cerr << "Syntax Error (line " << line_num << "): Symbol must only be 1 character long" << std::endl;
                     return false;
                 }
-                else if (read_order[1].size() < 1)
+                else if (read_order[1].empty())
                 {
                     std::cerr << "Error (line " << line_num << "): Could not find Symbol character" << std::endl;
                     return false;
@@ -89,7 +89,7 @@ bool TuringMachine::step()
                     std::cerr << "Syntax Error (line " << line_num << "): New_Symbol must only be 1 character long" << std::endl;
                     return false;
                 }
-                else if (read_order[2].size() < 1)
+                else if (read_order[2].empty())
                 {
                     std::cerr << "Error (line " << line_num << "): Could not find New_Symbol character" << std::endl;
                     return false;
@@ -100,7 +100,7 @@ bool TuringMachine::step()
                     std::cerr << "Syntax Error (line " << line_num << "): Move_Direction must only be 1 character long" << std::endl;
                     return false;
                 }
-                else if (read_order[3].size() < 1)
+                else if (read_order[3].empty())
                 {
                     std::cerr << "Error (line " << line_num << "): Could not find Move_Direction character" << std::endl;
                     return false;

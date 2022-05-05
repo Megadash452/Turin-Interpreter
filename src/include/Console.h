@@ -19,11 +19,22 @@
 #   define dbg_error(x)
 #endif
 
-// ncurses colors
+// ncurses brighter colors
+#define COLOR_LIGHT_BLACK  8
+#define COLOR_LIGHT_RED    9
+#define COLOR_LIGHT_GREEN  10
+#define COLOR_LIGHT_YELLOW 11
+#define COLOR_LIGHT_BLUE   12
+#define COLOR_LIGHT_PURPLE 13
+#define COLOR_LIGHT_CYAN   14
+#define COLOR_LIGHT_WHITE  15
+
+// Color pair names used
 #define UNACTIVE_SCROLL  1
 #define ACTIVE_SCROLL    2
 #define ACTIVE_CODE_LINE 3
 #define TAPE_CURSOR      4
+#define COMMENT_LINE     5
 
 
 struct coord
